@@ -7,9 +7,9 @@
  *
  */
 
-#include "BMA180.h"
+#include "bma180.h"
 
-uint8_t init_BMA180( uint8_t range, uint8_t bw)
+uint8_t init_bma180( uint8_t range, uint8_t bw)
 {
    uint8_t data[] = {0,0};
    uint8_t temp = 0x00;
