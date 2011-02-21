@@ -57,7 +57,7 @@
 
 
 
-uint8_t init_BMA180( uint8_t range, uint8_t bw);
+uint8_t init_bma180( uint8_t range, uint8_t bw);
 void update_bma180( );
 int get_temperature_bma180();
 

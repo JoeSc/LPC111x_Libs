@@ -102,7 +102,10 @@ void rcinit()
 }
 
 
-
+/*
+ * I need to add in something to set radio_status to 0 when
+ * too much time passes
+ */
 void TIMER32_0_IRQHandler(void)
 {
     uint32_t Pulse;
@@ -152,9 +155,13 @@ void setRC(uint8_t ch , int pwm)
 
 
 //PPM input on CT32B0_CAP0  PIO1_5
-unsigned int inputRC(uint8_t ch)
+unsigned int inputPPM(uint8_t ch)
 {
     return PWM_RAW[ch];
+}
+int validPPM()
+{
+    return radio_status;
 }
 
 
