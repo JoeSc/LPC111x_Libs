@@ -51,7 +51,9 @@
 typedef volatile uint8_t REG8;
 typedef volatile uint16_t REG16;
 typedef volatile uint32_t REG32;
-typedef int BOOL;
+#ifndef BOOL
+//typedef int BOOL;
+#endif
 
 #define pREG8  (REG8 *)
 #define pREG16 (REG16 *)

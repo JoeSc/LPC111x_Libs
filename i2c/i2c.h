@@ -77,7 +77,7 @@ static volatile uint8_t i2c_error;
 
 
 
-void i2c_init(void);
+void i2cInit(void);
 void i2c_setAddress(uint8_t address);
 uint8_t i2c_readFrom(uint8_t address, uint8_t* data, uint8_t length);
 uint8_t i2c_writeTo(uint8_t address, uint8_t* data, uint8_t length, uint8_t wait);
