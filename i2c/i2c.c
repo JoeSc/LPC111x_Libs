@@ -31,7 +31,7 @@
  * Input    none
  * Output   none
  */
-void i2c_init(void)
+void i2cInit(void)
 {
     // initialize state
     i2c_state = I2C_READY;

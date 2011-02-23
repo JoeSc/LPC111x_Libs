@@ -35,6 +35,9 @@ void rcinit();
 void setRC(uint8_t ch , int pwm);
 
 /* get value received from the PPM channel */
-unsigned int inputRC(uint8_t ch);
+unsigned int inputPPM(uint8_t ch);
+
+/* Check if the PPM is valid */
+int validPPM();
 
 #endif
