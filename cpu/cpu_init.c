@@ -33,7 +33,7 @@ void cpuPllInit()
    
    
       // Configure PLL
-  	SCB_PLLCLKSEL = SCB_CLKSEL_SOURCE_INTERNALOSC;    // Use the external crystal
+  	SCB_PLLCLKSEL = SCB_CLKSEL_SOURCE_INTERNALOSC;    // Use the internal crystal
 #define M	SYS_CLOCK / INTERNAL_OSCILLATOR_FREQ
 #define P 	(238000000 / 2) / SYS_CLOCK
    

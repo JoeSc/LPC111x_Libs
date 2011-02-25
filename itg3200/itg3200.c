@@ -30,7 +30,7 @@ uint8_t init_itg3200()
    data[1] = 0x00;         // 
    i2c_writeTo(ITG3200_ADDR, data, 2, 1);
    
-   return 1;
+   return 0;
 }
 
 
