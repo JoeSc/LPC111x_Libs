@@ -10,7 +10,7 @@
 #define HMC5843_H_
 
 #include "i2c.h"
-#include <math.h>
+#include "fixmath.h"
 
    
 #define HMC5843_ADDR 0x1E
@@ -28,12 +28,15 @@
 int16_t hmc5843_mag_x;
 int16_t hmc5843_mag_y;
 int16_t hmc5843_mag_z;
+fix16_t hmc5843_head_x;
+fix16_t hmc5843_head_y;
+fix16_t hmc5843_heading;
 
-float hmc_5843_heading;
 
 uint8_t init_hmc5843();
 void update_hmc5843();
-void calculate_heading_hmc5843( float roll, float pitch);
+void calculate_heading_hmc5843( fix16_t roll, fix16_t pitch);
+
    
    
 #endif 

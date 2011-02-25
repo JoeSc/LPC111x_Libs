@@ -53,26 +53,43 @@ void update_hmc5843( )
    
 }
 
-void calculate_heading_hmc5843( float roll, float pitch)
+void calculate_heading_hmc5843( fix16_t roll, fix16_t pitch)
 {
-   float Head_X;
-   float Head_Y;
-   float cos_roll;
-   float sin_roll;
-   float cos_pitch;
-   float sin_pitch;
+//   float Head_X;
+//   float Head_Y;
+//   float cos_roll;
+//   float sin_roll;
+//   float cos_pitch;
+//   float sin_pitch;
+//  
+//
+//   cos_roll = cos(roll);  // Optimizacion, se puede sacar esto de la matriz DCM?
+//   sin_roll = sin(roll);
+//   cos_pitch = cos(pitch);
+//   sin_pitch = sin(pitch);
+//      // Tilt compensated Magnetic field X component:
+//   Head_X = hmc5843_mag_x*cos_pitch+
+//      hmc5843_mag_y*sin_roll*sin_pitch+
+//      hmc5843_mag_z*cos_roll*sin_pitch;
+//      // Tilt compensated Magnetic field Y component:
+//   Head_Y = hmc5843_mag_y*cos_roll-
+//      hmc5843_mag_z*sin_roll;
+//      // Magnetic Heading
+//   //hmc_5843_heading = atan2(-Head_Y,Head_X);
    
-   cos_roll = cos(roll);  // Optimizacion, se puede sacar esto de la matriz DCM?
-   sin_roll = sin(roll);
-   cos_pitch = cos(pitch);
-   sin_pitch = sin(pitch);
-      // Tilt compensated Magnetic field X component:
-   Head_X = hmc5843_mag_x*cos_pitch+hmc5843_mag_y*sin_roll*sin_pitch+hmc5843_mag_z*cos_roll*sin_pitch;
-      // Tilt compensated Magnetic field Y component:
-   Head_Y = hmc5843_mag_y*cos_roll-hmc5843_mag_z*sin_roll;
-      // Magnetic Heading
-   hmc_5843_heading = atan2(-Head_Y,Head_X);
-   
+    fix16_t cos_roll  = fix16_cos(roll);
+    fix16_t sin_roll  = fix16_sin(roll);
+    fix16_t cos_pitch = fix16_cos(pitch);
+    fix16_t sin_pitch = fix16_sin(pitch);
+
+    hmc5843_head_x = fix16_sadd(fix16_mul(fix16_from_int(hmc5843_mag_x),cos_pitch),
+           fix16_sadd(fix16_mul(fix16_from_int(hmc5843_mag_y),fix16_mul(sin_roll,sin_pitch)),
+           fix16_mul(fix16_from_int(hmc5843_mag_z),fix16_mul(cos_roll,sin_pitch))));
+
+    hmc5843_head_y = fix16_sadd(fix16_mul(fix16_from_int(hmc5843_mag_y),cos_roll),
+            -fix16_mul(fix16_from_int(hmc5843_mag_z),sin_roll));
+    
+    hmc5843_heading = fix16_atan2(-hmc5843_head_y,hmc5843_head_x);
 
 }
 

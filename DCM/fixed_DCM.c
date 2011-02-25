@@ -3,7 +3,7 @@
 
 #include <stdio.h>
 
-
+#define IsMAG
 //G_Dt = const_fix16_from_dbl(.02);G_Dt needs to be set before calling anything
 
 fix16_t Gyro_Vector[3]= {0, 0, 0};  //Store the gyros rutn rate in a vector
@@ -63,7 +63,7 @@ void Normalize(void)
     Vector_Scale(&DCM_Matrix[2][0], &temporary[2][0], renorm);
 }
 
-void Drift_correction(void)
+void Drift_correction(fix16_t head_x, fix16_t head_y)
 {
     fix16_t errorCourse;
     static fix16_t Scaled_Omega_P[3];
@@ -83,8 +83,8 @@ void Drift_correction(void)
 
 #ifdef IsMAG
     
-    errorCourse= fix16_sadd(fix16_mul(DCM_Matrix[0][0],/*TODO HEADING Y*/), 
-                 fix16_mul(DCM_Matrix[1][0],/*TODO HEADING X */)); 
+    errorCourse= fix16_sadd(fix16_mul(DCM_Matrix[0][0], head_x), 
+                 fix16_mul(DCM_Matrix[1][0],head_y)); 
     
     Vector_Scale(errorYaw,&DCM_Matrix[2][0],errorCourse); 
 

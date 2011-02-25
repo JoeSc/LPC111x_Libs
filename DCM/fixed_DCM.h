@@ -31,7 +31,7 @@ fix16_t pitch ;
 fix16_t yaw ;
 
 void Normalize(void);
-void Drift_correction(void);
+void Drift_correction(fix16_t head_x, fix16_t head_y);
 void Accel_adjust(void);
 void Matrix_update( int gx , int gy , int gz , int ax , int ay ,  int az );
 void Euler_angles(void);
