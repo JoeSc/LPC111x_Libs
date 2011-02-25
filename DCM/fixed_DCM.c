@@ -108,9 +108,9 @@ void Drift_correction(void)
 
 void Matrix_update( int gx , int gy , int gz , int ax , int ay ,  int az )
 {
-    Gyro_Vector[0] = Gyro_Scaled_X(fix16_from_int(gx));
+    Gyro_Vector[0] = Gyro_Scaled_X(fix16_from_int(-gx));
     Gyro_Vector[1] = Gyro_Scaled_X(fix16_from_int(gy));
-    Gyro_Vector[2] = Gyro_Scaled_X(fix16_from_int(gz));
+    Gyro_Vector[2] = Gyro_Scaled_X(fix16_from_int(-gz));
 
 /*
     Accel_Vector[0]=fix16_sadd(fix16_mul(Accel_Vector[0],const_fix16_from_dbl(0.6)), 
@@ -124,7 +124,7 @@ void Matrix_update( int gx , int gy , int gz , int ax , int ay ,  int az )
 */
     /* NO LOW PASS FILTER */
     Accel_Vector[0] = fix16_from_int(ax);
-    Accel_Vector[1] = fix16_from_int(ay);
+    Accel_Vector[1] = fix16_from_int(-ay);
     Accel_Vector[2] = fix16_from_int(az);
     
 
