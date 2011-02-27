@@ -160,7 +160,7 @@ void Euler_angles(void)
 #else        // Euler angles from DCM matrix
     pitch = fix16_asin(-DCM_Matrix[2][0]);
     roll = fix16_atan2(DCM_Matrix[2][1],DCM_Matrix[2][2]);
-    yaw = fix16_atan2(DCM_Matrix[1][0],DCM_Matrix[0][0]);
+    yaw = fix16_atan2(-DCM_Matrix[1][0],-DCM_Matrix[0][0]);
 #endif
 }
 
