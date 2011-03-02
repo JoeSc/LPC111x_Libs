@@ -13,6 +13,8 @@
 #ifndef _uart_H_
 #define _uart_H_
 
+#define TX_BUFFER_SIZE 64
+
 void uartInit(uint32_t baudrate);
 void uartSend(char data);
 uint32_t uartDataAvailable();
