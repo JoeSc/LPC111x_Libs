@@ -19,20 +19,38 @@ volatile uint8_t tx_buffer_tail = 0;
 void UART_IRQHandler(void)
 {
 #if (TX_BUFFER_SIZE > 0 )
-    uint8_t tail = tx_buffer_tail;
-    uint8_t c = tx_buffer[tail];
+    switch(UART_U0IIR & UART_U0IIR_IntId_MASK)
+    {
+        case UART_U0IIR_IntId_THRE:
+            {
+                uint8_t i = 0;
+                while(i < 16)
+                {
+                    uint8_t tail = tx_buffer_tail;
+                    uint8_t c = tx_buffer[tail];
 
-    UART_U0THR = c;
+                    UART_U0THR = c;
 
-    if (tail == TX_BUFFER_SIZE-1)
-        tail=0;
-    else
-        tail = tail + 1;
-    
-    if (tail == tx_buffer_head)
-        UART_U0IER &= ~UART_U0IER_THRE_Interrupt_Enabled;//Disable The interrupt
+                    if (tail == TX_BUFFER_SIZE-1)
+                        tail=0;
+                    else
+                        tail = tail + 1;
 
-    tx_buffer_tail = tail;
+                    if (tail == tx_buffer_head)
+                    {
+                        UART_U0IER &= ~UART_U0IER_THRE_Interrupt_Enabled;//Disable The interrupt
+                        //GPIO_GPIO2DATA |= (1<<6);    
+                        break;
+                    }
+
+                    tx_buffer_tail = tail;
+                    i++;
+                }
+            }
+            break;
+        default:
+            break;
+    }
 #endif
 }
 
@@ -99,7 +117,7 @@ void uartInit(uint32_t baudrate)
 #if (TX_BUFFER_SIZE > 0 )
     NVIC_EnableIRQ(UART_IRQn);
 #endif
-    
+
 }
 
 #if (TX_BUFFER_SIZE > 0 )
@@ -113,7 +131,7 @@ void uartSend(char data)
             newhead = 0;
         else
             newhead = tx_buffer_head + 1;
-        
+
         while(newhead == tx_buffer_tail); // make sure a spot is open
 
         tx_buffer[tx_buffer_head] = data;
@@ -134,10 +152,10 @@ void uartSend(char data)
 
 void uartSend(char data)
 {
-   while ( !(UART_U0LSR & UART_U0LSR_THRE) ); // sit and spin untill fifo is empty.  
-                                              //it would be nice to be able to fill the fifo
-                                              // 16 bytes and then wait for it to be empty?
-   UART_U0THR = data;
+    while ( !(UART_U0LSR & UART_U0LSR_THRE) ); // sit and spin untill fifo is empty.  
+    //it would be nice to be able to fill the fifo
+    // 16 bytes and then wait for it to be empty?
+    UART_U0THR = data;
 }
 
 #endif
