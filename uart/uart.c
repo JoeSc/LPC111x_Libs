@@ -16,11 +16,18 @@ uint8_t tx_buffer_head = 0;
 volatile uint8_t tx_buffer_tail = 0;
 #endif 
 
+#if (RX_BUFFER_SIZE >0)
+uint8_t rx_buffer[RX_BUFFER_SIZE];
+uint8_t rx_buffer_head =0;
+volatile uint8_t rx_buffer_tail = 0;
+#endif
+
 void UART_IRQHandler(void)
 {
-#if (TX_BUFFER_SIZE > 0 )
+#if ((TX_BUFFER_SIZE > 0) || (RX_BUFFER_SIZE > 0))
     switch(UART_U0IIR & UART_U0IIR_IntId_MASK)
     {
+#if (TX_BUFFER_SIZE > 0)
         case UART_U0IIR_IntId_THRE:
             {
                 uint8_t i = 0;
@@ -47,8 +54,35 @@ void UART_IRQHandler(void)
                     i++;
                 }
             }
-            break;
+            break;            
+#endif
+#if (RX_BUFFER_SIZE > 0)
+        case UART_U0IIR_IntId_CTI:            
+        case UART_U0IIR_IntId_RDA:
+            {
+                
+                
+                while(UART_U0LSR & UART_U0LSR_RDR_DATA)
+                {
+                    uint8_t c = UART_U0RBR;
+                    uint8_t head = rx_buffer_head ;
+                    if(head == RX_BUFFER_SIZE-1)
+                        head = 0;
+                    else
+                        head = head + 1;
+    
+                    /*Dont overwrite the buffer !! */
+                    if ( head != rx_buffer_tail)
+                    {
+                        rx_buffer[rx_buffer_head] = c;
+                        rx_buffer_head = head;
+                    }
+                }
+                break;
+            }
+#endif
         default:
+            
             break;
     }
 #endif
@@ -99,10 +133,13 @@ void uartInit(uint32_t baudrate)
             UART_U0LCR_Break_Control_Disabled |
             UART_U0LCR_Divisor_Latch_Access_Disabled);
 
-    /* Enable and reset TX and RX FIFO. */
+    /* Enable and reset TX and RX FIFO. 
+       Call the RX interrupt when 14 chars are
+       in the FIFO */
     UART_U0FCR = (UART_U0FCR_FIFO_Enabled | 
             UART_U0FCR_Rx_FIFO_Reset | 
-            UART_U0FCR_Tx_FIFO_Reset); 
+            UART_U0FCR_Tx_FIFO_Reset |
+            UART_U0FCR_Rx_Trigger_Level_Select_14Char); 
 
     regVal = UART_U0LSR;
 
@@ -112,13 +149,29 @@ void uartInit(uint32_t baudrate)
         /* Dump data from RX FIFO */
         regVal = UART_U0RBR;
     }
+    /* If Using the RX_Buffer then enable the Interrupt
+       Else disable it */
+#if (RX_BUFFER_SIZE > 0)
+    UART_U0IER = UART_U0IER_RBR_Interrupt_Enabled;
+#else
     UART_U0IER = 0x0;
-    UART_U0TER = UART_U0TER_TXEN_Enabled;
-#if (TX_BUFFER_SIZE > 0 )
+#endif
+
+    /* If using any buffering be sure to enable the interrupt */
+#if (TX_BUFFER_SIZE > 0 ) || (RX_BUFFER_SIZE > 0)
     NVIC_EnableIRQ(UART_IRQn);
 #endif
 
+    UART_U0TER = UART_U0TER_TXEN_Enabled;    
 }
+
+
+
+/*#######################################################################################
+ *
+ * TX Section of the code
+ *
+ *#####################################################################################*/
 
 #if (TX_BUFFER_SIZE > 0 )
 void uartSend(char data)
@@ -141,35 +194,61 @@ void uartSend(char data)
     }
     else
         UART_U0THR = data;
-
-
+}
+#else
+void uartSend(char data)
+{
     // sit and spin untill fifo is empty.  
-    //it would be nice to be able to fill the fifo
-    // 16 bytes and then wait for it to be empty?
+    while ( !(UART_U0LSR & UART_U0LSR_THRE) );
+    UART_U0THR = data;
+}
+#endif
+
+
+
+/*#######################################################################################
+ *
+ * RX Section of the code
+ *
+ *#####################################################################################*/
+
+#if (RX_BUFFER_SIZE > 0)
+/* Unlike other implementations this is a true or false
+   Function due to the possibility of chars hiding in 
+   the FIFO */
+uint8_t uartDataAvailable()
+{
+    /*Data is available if the head is not equal to the
+      tail or if data is waiting in the FIFO */
+    return (rx_buffer_head != rx_buffer_tail) || (UART_U0LSR & UART_U0LSR_RDR_DATA);
+}
+/* returns a char from the buffer first then from the 
+   FIFO */
+uint8_t uartRead()
+{
+    if ( !uartDataAvailable() )
+        return -1;
+    if (rx_buffer_head != rx_buffer_tail)
+    {
+        uint8_t c = rx_buffer[rx_buffer_tail];
+        if (rx_buffer_tail == RX_BUFFER_SIZE-1)
+            rx_buffer_tail = 0;
+        else 
+            rx_buffer_tail++;
+        return c;
+    }
+    else
+        return UART_U0RBR;
 }
 
 #else
-
-void uartSend(char data)
-{
-    while ( !(UART_U0LSR & UART_U0LSR_THRE) ); // sit and spin untill fifo is empty.  
-    //it would be nice to be able to fill the fifo
-    // 16 bytes and then wait for it to be empty?
-    UART_U0THR = data;
-}
-
-#endif
-
-uint32_t uartDataAvailable()
-{
+uint8_t uartDataAvailable() {
     return UART_U0LSR & UART_U0LSR_RDR_DATA;
 }
-
-char uartReceive()
-{
+uint8_t uartRead() {
     return UART_U0RBR;
 }
-
+#endif
 
 /**************************************************************************/
 void __putchar(const char c)

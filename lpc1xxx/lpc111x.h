@@ -1643,7 +1643,7 @@ typedef enum IRQn
 #define UART_U0FCR_Rx_Trigger_Level_Select_1Char  ((unsigned int) 0x00000000) 
 #define UART_U0FCR_Rx_Trigger_Level_Select_4Char  ((unsigned int) 0x00000040) 
 #define UART_U0FCR_Rx_Trigger_Level_Select_8Char  ((unsigned int) 0x00000080) 
-#define UART_U0FCR_Rx_Trigger_Level_Select_12Char ((unsigned int) 0x000000C0) 
+#define UART_U0FCR_Rx_Trigger_Level_Select_14Char ((unsigned int) 0x000000C0) 
 
 /*  Modem control */
 #define UART_U0MCR                                (*(pREG32 (0x40008010)))
