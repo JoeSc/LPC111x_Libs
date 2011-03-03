@@ -39,7 +39,7 @@ void UART_IRQHandler(void)
                     if (tail == tx_buffer_head)
                     {
                         UART_U0IER &= ~UART_U0IER_THRE_Interrupt_Enabled;//Disable The interrupt
-                        //GPIO_GPIO2DATA |= (1<<6);    
+                        tx_buffer_tail = tail;
                         break;
                     }
 
